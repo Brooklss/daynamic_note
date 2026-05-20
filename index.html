@@ -431,6 +431,11 @@
       opacity: 0;
     }
 
+    .video-shell[data-mode="iframe"] video,
+    .video-shell[data-mode="video"] iframe {
+      display: none;
+    }
+
     .video-note {
       padding: 12px 6px 2px;
       color: rgba(255, 240, 255, 0.76);
@@ -753,6 +758,7 @@
           <span class="corner-floral br" aria-hidden="true"></span>
           <div class="video-shell" id="videoShell" data-empty="true">
             <video id="loveVideo" controls playsinline preload="metadata"></video>
+            <iframe id="loveEmbed" title="Love note video" allowfullscreen></iframe>
             <div class="placeholder" id="videoPlaceholder">
               <div>
                 <h2 style="font-size: clamp(1.1rem, 4vw, 1.5rem); margin-bottom: 10px;">Your video lives here</h2>
@@ -816,6 +822,7 @@ UPDATE YOUR TEXT HERE`,
     const loveNote = document.getElementById('loveNote');
     const datePill = document.getElementById('datePill');
     const loveVideo = document.getElementById('loveVideo');
+    const loveEmbed = document.getElementById('loveEmbed');
     const videoShell = document.getElementById('videoShell');
     const button = document.getElementById('loveButton');
     const buttonText = document.getElementById('buttonText');
@@ -833,17 +840,63 @@ UPDATE YOUR TEXT HERE`,
       }).format(date);
     }
 
+    function toEmbedUrl(rawUrl) {
+      try {
+        const url = new URL(rawUrl);
+        const host = url.hostname.replace(/^www\./, '');
+
+        if (host.includes('youtube.com')) {
+          const videoId = url.searchParams.get('v');
+          if (videoId) {
+            return `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`;
+          }
+        }
+
+        if (host === 'youtu.be') {
+          const videoId = url.pathname.split('/').filter(Boolean)[0];
+          if (videoId) {
+            return `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`;
+          }
+        }
+
+        if (host.includes('vimeo.com')) {
+          const videoId = url.pathname.split('/').filter(Boolean)[0];
+          if (videoId) {
+            return `https://player.vimeo.com/video/${videoId}`;
+          }
+        }
+      } catch (error) {
+        return null;
+      }
+
+      return null;
+    }
+
     function populateContent() {
       const dateText = CONTENT.dateLabel || formatDate();
       datePill.textContent = `Note for: ${dateText}`;
       loveNote.textContent = CONTENT.noteText;
 
       if (CONTENT.videoUrl && CONTENT.videoUrl.trim()) {
-        loveVideo.src = CONTENT.videoUrl.trim();
-        loveVideo.load();
+        const rawUrl = CONTENT.videoUrl.trim();
+        const embedUrl = toEmbedUrl(rawUrl);
+
+        if (embedUrl) {
+          loveVideo.removeAttribute('src');
+          loveVideo.load();
+          loveEmbed.src = embedUrl;
+          videoShell.dataset.mode = 'iframe';
+        } else {
+          loveEmbed.removeAttribute('src');
+          loveVideo.src = rawUrl;
+          loveVideo.load();
+          videoShell.dataset.mode = 'video';
+        }
+
         videoShell.dataset.empty = 'false';
       } else {
         loveVideo.removeAttribute('src');
+        loveEmbed.removeAttribute('src');
         loveVideo.load();
         videoShell.dataset.empty = 'true';
       }
