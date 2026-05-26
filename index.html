@@ -513,10 +513,31 @@
       animation: bloom 520ms ease;
     }
 
+    .magic-button.is-blooming::after {
+      content: "";
+      position: absolute;
+      inset: -8px;
+      border-radius: inherit;
+      border: 1px solid rgba(255, 232, 162, 0.62);
+      box-shadow: 0 0 30px rgba(255, 215, 106, 0.42);
+      animation: halo 820ms ease-out;
+    }
+
     @keyframes bloom {
       0% { transform: scale(1); }
       35% { transform: scale(1.06); }
       100% { transform: scale(1); }
+    }
+
+    @keyframes halo {
+      0% {
+        opacity: 0.95;
+        transform: scale(0.96);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(1.24);
+      }
     }
 
     .button-caption {
@@ -610,7 +631,7 @@
       height: calc(var(--size) * 1.45);
       opacity: 0;
       transform: translate3d(0, 0, 0) scale(var(--scale));
-      animation: rise var(--dur) linear forwards;
+      animation: rise var(--dur) cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
       will-change: transform, opacity;
       contain: layout paint;
     }
@@ -626,6 +647,8 @@
         0 0 20px rgba(255, 216, 112, 0.6),
         0 0 44px rgba(255, 216, 112, 0.22);
       filter: blur(0.2px);
+      transform-origin: 50% 100%;
+      animation: lanternWobble var(--wobble) ease-in-out infinite;
     }
 
     .lantern .glow::before,
@@ -668,9 +691,22 @@
       8% {
         opacity: 1;
       }
+      55% {
+        opacity: 0.95;
+      }
       100% {
         opacity: 0;
-        transform: translate3d(var(--drift), -132vh, 0) scale(calc(var(--scale) * 1.02));
+        transform: translate3d(var(--drift), -132vh, 0) scale(calc(var(--scale) * 1.05));
+      }
+    }
+
+    @keyframes lanternWobble {
+      0%,
+      100% {
+        transform: rotate(-3deg) translateY(0);
+      }
+      50% {
+        transform: rotate(3deg) translateY(-2px);
       }
     }
 
@@ -737,7 +773,7 @@
         </div>
         <p class="eyebrow">A Tiny Portal of Love</p>
         <h1>Dynamic Love Note</h1>
-        <p class="subtitle">A soft little corner of the internet for daily words, a favorite video, and one magical button that sends all the warmth you can hold.</p>
+        <p class="subtitle">ENATE, this is my little sky-lantern for you. YENE MIST, every part of this page is written with my whole heart.</p>
         <div class="date-pill" id="datePill"></div>
       </header>
 
@@ -749,7 +785,7 @@
       <section class="panel video-panel" aria-labelledby="videoHeading">
         <div class="frame-title" id="videoHeading">
           <span>Magical Video Frame</span>
-          <span>Update weekly</span>
+          <span>For ENATE</span>
         </div>
         <div class="painting-frame">
           <span class="corner-floral tl" aria-hidden="true"></span>
@@ -761,25 +797,23 @@
             <iframe id="loveEmbed" title="Love note video" allowfullscreen></iframe>
             <div class="placeholder" id="videoPlaceholder">
               <div>
-                <h2 style="font-size: clamp(1.1rem, 4vw, 1.5rem); margin-bottom: 10px;">Your video lives here</h2>
-                <p style="margin: 0; color: rgba(255, 247, 255, 0.76); line-height: 1.6;">Paste a public MP4 link or swap this to an iframe if you prefer YouTube or Vimeo.</p>
+                <h2 style="font-size: clamp(1.1rem, 4vw, 1.5rem); margin-bottom: 10px;">A video for YENE FKR</h2>
+                <p style="margin: 0; color: rgba(255, 247, 255, 0.76); line-height: 1.6;">Waiting for today's memory, EMA.</p>
               </div>
             </div>
           </div>
         </div>
-        <p class="video-note">Tip: keep the video intimate and short. This page is designed for NFC open-and-smile moments on mobile.</p>
       </section>
 
       <section class="panel surprise-panel" aria-labelledby="surpriseHeading">
         <div class="note-label" id="surpriseHeading">Sweet Surprise</div>
         <button class="magic-button" id="loveButton" type="button" aria-live="polite">
-          <span id="buttonText">Tap for a Hug</span>
+          <span id="buttonText">Tap for a Hug, ENATE</span>
           <span class="spark-pop" aria-hidden="true"></span>
         </button>
-        <p class="button-caption">Tap once for a chime, lanterns, and a tiny Pascal peek. Tap again anytime to replay the magic.</p>
       </section>
 
-      <div class="footer-note">Made for late-night smiles, long-distance comfort, and easy updates.</div>
+      <div class="footer-note">Written for ENATE, YENE MIST, YENE FKR, EMA.</div>
     </section>
   </main>
 
@@ -808,13 +842,13 @@
       dateLabel: null,
       noteText: `UPDATE YOUR TEXT HERE
 
-Hi love,
+ENATE,
 
-Every time you open this page, I want it to feel like a tiny lantern drifting toward you. I wish I could press pause on the world and wrap you in the warmest hug, tuck a flower behind your ear, and whisper that loving you is the easiest thing I have ever done.
+YENE MIST, every time you open this page, I want it to feel like a tiny lantern drifting toward you. I wish I could press pause on the world and wrap you in the warmest hug, tuck a flower behind your ear, and whisper that loving you is the easiest thing I have ever done.
 
-Look at the moon, think of me, and remember: no distance can dim what we are building.
+YENE FKR, look at the moon, think of me, and remember: no distance can dim what we are building.
 
-Forever yours,
+Forever yours, EMA,
 UPDATE YOUR TEXT HERE`,
       videoUrl: "" // UPDATE YOUR VIDEO LINK HERE
     };
@@ -829,7 +863,13 @@ UPDATE YOUR TEXT HERE`,
     const lanternLayer = document.getElementById('lanternLayer');
     const pascal = document.getElementById('pascal');
 
-    const hiddenMessage = "I love you to the floating lights and back! ✨";
+    const hiddenMessages = [
+      "I love you to the floating lights and back, ENATE. ✨",
+      "YENE MIST, you are my calm and my magic. ✨",
+      "YENE FKR, I am always yours. ✨",
+      "EMA is sending you the warmest hug right now. ✨"
+    ];
+    let hiddenMessageIndex = 0;
 
     function formatDate(date = new Date()) {
       return new Intl.DateTimeFormat(undefined, {
@@ -935,12 +975,14 @@ UPDATE YOUR TEXT HERE`,
       const scale = 0.75 + Math.random() * 1.05;
       const drift = (Math.random() * 12 - 6).toFixed(2) + 'vw';
       const hueShift = Math.random() < 0.5 ? '0deg' : '10deg';
+      const wobble = (2.1 + Math.random() * 1.8).toFixed(2) + 's';
 
       lantern.style.setProperty('--size', `${size}px`);
       lantern.style.setProperty('--x', `${x}vw`);
       lantern.style.setProperty('--dur', `${duration}s`);
       lantern.style.setProperty('--scale', scale.toFixed(2));
       lantern.style.setProperty('--drift', drift);
+      lantern.style.setProperty('--wobble', wobble);
       lantern.style.filter = `hue-rotate(${hueShift})`;
       lantern.innerHTML = '<span class="glow"></span><span class="tail"></span>';
 
@@ -949,10 +991,17 @@ UPDATE YOUR TEXT HERE`,
     }
 
     function burstLanterns() {
-      const count = window.innerWidth < 700 ? 22 : 34;
+      const count = window.innerWidth < 700 ? 28 : 42;
       for (let index = 0; index < count; index += 1) {
-        window.setTimeout(createLantern, index * 70);
+        window.setTimeout(createLantern, index * 54);
       }
+
+      window.setTimeout(() => {
+        const echoCount = window.innerWidth < 700 ? 10 : 14;
+        for (let index = 0; index < echoCount; index += 1) {
+          window.setTimeout(createLantern, index * 110);
+        }
+      }, 900);
     }
 
     function revealPascal() {
@@ -973,7 +1022,8 @@ UPDATE YOUR TEXT HERE`,
       button.classList.remove('is-blooming');
       void button.offsetWidth;
       button.classList.add('is-blooming');
-      buttonText.textContent = hiddenMessage;
+      buttonText.textContent = hiddenMessages[hiddenMessageIndex];
+      hiddenMessageIndex = (hiddenMessageIndex + 1) % hiddenMessages.length;
       playChime();
       burstLanterns();
       revealPascal();
