@@ -838,7 +838,9 @@
   </div>
 
   <script>
-    const CONTENT = {
+    const STORAGE_KEY = 'dynamic-love-note-content';
+
+    const DEFAULT_CONTENT = {
       dateLabel: null,
       noteText: `
 
@@ -846,8 +848,50 @@
 
     yene mist i missed you all day so fucking much ,i dont wana fight your all i care about ,i promise i want to talk to you all night and just look into your eye and id never do anything to hurt you ever 🥺 and i want you to turst me and i promise i wont break your trust id never do that ...and id not have came back if that was the case and i love you more than anything i promise 🥺
     `,
-      videoUrl: "https://www.youtube.com/watch?v=wetQ1uR9aJY&list=RDwetQ1uR9aJY&start_radio=1" // UPDATE YOUR VIDEO LINK HERE
+      videoUrl: "https://www.youtube.com/watch?v=wetQ1uR9aJY&list=RDwetQ1uR9aJY&start_radio=1"
     };
+
+    function readStoredContent() {
+      try {
+        const rawValue = window.localStorage.getItem(STORAGE_KEY);
+        if (!rawValue) return {};
+
+        const parsed = JSON.parse(rawValue);
+        return typeof parsed === 'object' && parsed !== null ? parsed : {};
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function readQueryContent() {
+      const params = new URLSearchParams(window.location.search);
+      const content = {};
+
+      ['dateLabel', 'noteText', 'videoUrl'].forEach((key) => {
+        if (params.has(key)) {
+          content[key] = params.get(key);
+        }
+      });
+
+      if (params.has('date')) content.dateLabel = params.get('date');
+      if (params.has('note')) content.noteText = params.get('note');
+      if (params.has('video')) content.videoUrl = params.get('video');
+
+      return content;
+    }
+
+    function mergeContent(...sources) {
+      return sources.reduce((content, source) => {
+        Object.entries(source).forEach(([key, value]) => {
+          if (typeof value === 'string') {
+            content[key] = value;
+          }
+        });
+        return content;
+      }, { ...DEFAULT_CONTENT });
+    }
+
+    const CONTENT = mergeContent(readStoredContent(), readQueryContent());
 
     const loveNote = document.getElementById('loveNote');
     const datePill = document.getElementById('datePill');
@@ -863,7 +907,7 @@
       "I love you to the floating lights and back, ENATE. ✨",
       "YENE MIST, you are my calm and my magic. ✨",
       "YENE FKR, I am always yours. ✨",
-      "EMA is sending you the warmest hug right now. ✨"
+      "EMA i am sending you the warmest hug right now. ✨"
     ];
     let hiddenMessageIndex = 0;
 

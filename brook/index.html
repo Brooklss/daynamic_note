@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#151632" />
+  <title>/brook editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg-0: #0e1024;
+      --bg-1: #17183a;
+      --bg-2: #281d4a;
+      --panel: rgba(18, 22, 48, 0.82);
+      --panel-strong: rgba(24, 28, 60, 0.92);
+      --stroke: rgba(255, 255, 255, 0.12);
+      --text: #fbf6ff;
+      --muted: rgba(250, 242, 255, 0.72);
+      --accent: #ffd56a;
+      --accent-2: #f4a7c2;
+      --shadow: 0 30px 80px rgba(0, 0, 0, 0.38);
+      --radius-xl: 32px;
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --max-width: 1120px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 20% 10%, rgba(255, 213, 106, 0.14), transparent 26%),
+        radial-gradient(circle at 85% 18%, rgba(155, 108, 255, 0.16), transparent 22%),
+        radial-gradient(circle at 50% 100%, rgba(244, 167, 194, 0.12), transparent 28%),
+        linear-gradient(180deg, #0d1024 0%, #111535 26%, #17193e 58%, #0f122a 100%);
+      position: relative;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    body::before {
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.2) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 24% 76%, rgba(255, 255, 255, 0.16) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 42% 30%, rgba(255, 255, 255, 0.14) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 66% 14%, rgba(255, 255, 255, 0.18) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 78% 66%, rgba(255, 255, 255, 0.12) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 92% 24%, rgba(255, 255, 255, 0.16) 0 1px, transparent 1.5px);
+      opacity: 0.65;
+      animation: shimmer 12s ease-in-out infinite alternate;
+    }
+
+    body::after {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 34%, rgba(255, 213, 106, 0.04) 72%, transparent 100%);
+      opacity: 0.75;
+    }
+
+    @keyframes shimmer {
+      from {
+        transform: translateY(0);
+      }
+      to {
+        transform: translateY(10px);
+      }
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      padding: 18px 16px 28px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: var(--max-width);
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero,
+    .card {
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .hero {
+      padding: 24px 20px 22px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 35%, rgba(255, 213, 106, 0.05) 80%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      position: relative;
+      z-index: 1;
+      margin: 0 0 10px;
+      color: rgba(255, 244, 255, 0.72);
+      text-transform: uppercase;
+      letter-spacing: 0.28em;
+      font-size: 0.72rem;
+    }
+
+    h1,
+    h2 {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      font-family: "Cinzel", Georgia, serif;
+      text-wrap: balance;
+      line-height: 1;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 7vw, 4rem);
+      text-shadow: 0 3px 18px rgba(0, 0, 0, 0.35);
+    }
+
+    .subtitle {
+      position: relative;
+      z-index: 1;
+      margin: 12px 0 0;
+      max-width: 60ch;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 0.98rem;
+    }
+
+    .hero-actions {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .action,
+    .link-action {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 16px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+    }
+
+    .action:hover,
+    .link-action:hover,
+    .action:focus-visible,
+    .link-action:focus-visible {
+      transform: translateY(-1px);
+      outline: none;
+      filter: saturate(1.05);
+    }
+
+    .action.primary {
+      color: #1b1424;
+      background: linear-gradient(135deg, #ffd56a, #f6b76b);
+      box-shadow: 0 14px 28px rgba(255, 213, 106, 0.24);
+    }
+
+    .action.secondary,
+    .link-action {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .card {
+      padding: 18px;
+      background: linear-gradient(180deg, rgba(16, 20, 42, 0.88), rgba(10, 13, 28, 0.82));
+    }
+
+    .card h2 {
+      font-size: clamp(1.3rem, 3vw, 1.8rem);
+      margin-bottom: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      color: rgba(255, 244, 255, 0.9);
+      font-size: 0.84rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .input,
+    .textarea {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      font: inherit;
+      line-height: 1.6;
+      padding: 14px 15px;
+      outline: none;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    .textarea {
+      min-height: 240px;
+      resize: vertical;
+    }
+
+    .input:focus,
+    .textarea:focus {
+      border-color: rgba(255, 213, 106, 0.42);
+      box-shadow: 0 0 0 4px rgba(255, 213, 106, 0.12);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .preview {
+      display: grid;
+      gap: 14px;
+    }
+
+    .preview-note {
+      border-radius: 26px;
+      padding: 18px;
+      background: linear-gradient(180deg, rgba(26, 18, 52, 0.72), rgba(18, 14, 38, 0.82));
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      white-space: pre-wrap;
+      line-height: 1.75;
+      color: rgba(255, 249, 255, 0.95);
+    }
+
+    .route-status span {
+      color: var(--accent);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status {
+      min-height: 1.4em;
+      color: rgba(255, 247, 251, 0.78);
+      font-size: 0.92rem;
+    }
+
+    .footer {
+      text-align: center;
+      color: rgba(255, 242, 255, 0.56);
+      font-size: 0.8rem;
+      padding: 4px 10px 0;
+    }
+
+    @media (min-width: 920px) {
+      .page {
+        padding: 24px 20px 36px;
+      }
+
+      .grid {
+        grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+        align-items: start;
+      }
+
+      .card {
+        padding: 22px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 1ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="shell" aria-label="Brook editor">
+      <header class="hero">
+        <p class="eyebrow">/brook route</p>
+        <h1>Update the note without touching code</h1>
+        <p class="subtitle">Edit the text and the video link here, then save a shareable route back to the main page. The current values are also stored locally in this browser.</p>
+        <div class="hero-actions">
+          <button class="action primary" id="saveButton" type="button">Save content</button>
+          <button class="action secondary" id="copyButton" type="button">Copy share link</button>
+          <a class="link-action" href="../index.html">Open note page</a>
+        </div>
+      </header>
+
+      <div class="grid">
+        <section class="card" aria-labelledby="editorHeading">
+          <h2 id="editorHeading">Editor</h2>
+          <div class="field">
+            <label for="dateInput">Date label</label>
+            <input class="input" id="dateInput" type="text" placeholder="Optional date label" />
+          </div>
+          <div class="field">
+            <label for="videoInput">Video link</label>
+            <input class="input" id="videoInput" type="url" placeholder="Paste the video URL here" />
+          </div>
+          <div class="field">
+            <label for="noteInput">Note text</label>
+            <textarea class="textarea" id="noteInput" placeholder="Write the note text here"></textarea>
+          </div>
+          <div class="controls">
+            <button class="action primary" id="publishButton" type="button">Publish route</button>
+            <button class="action secondary" id="resetButton" type="button">Reset defaults</button>
+          </div>
+          <div class="status" id="statusText" aria-live="polite"></div>
+        </section>
+
+        <aside class="card preview" aria-labelledby="previewHeading">
+          <h2 id="previewHeading">Live preview</h2>
+          <div class="preview-note" id="previewNote"></div>
+          <div class="route-status" id="routeStatus"><span>Route</span> ready to copy</div>
+        </aside>
+      </div>
+
+      <div class="footer">Changes are stored in localStorage under the same origin and can be shared as a route URL.</div>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = 'dynamic-love-note-content';
+
+    const DEFAULT_CONTENT = {
+      dateLabel: '',
+      noteText: `Hey baby girl\n\nYene mist, I missed you all day so fucking much. I do not want to fight. You are all I care about. I promise I want to talk to you all night and just look into your eyes. I would never do anything to hurt you. I want you to trust me, and I promise I will not break your trust. I would never do that, and I would not have come back if that was the case. I love you more than anything, I promise.`,
+      videoUrl: 'https://www.youtube.com/watch?v=wetQ1uR9aJY&list=RDwetQ1uR9aJY&start_radio=1'
+    };
+
+    const dateInput = document.getElementById('dateInput');
+    const noteInput = document.getElementById('noteInput');
+    const videoInput = document.getElementById('videoInput');
+    const previewNote = document.getElementById('previewNote');
+    const routeStatus = document.getElementById('routeStatus');
+    const statusText = document.getElementById('statusText');
+    const saveButton = document.getElementById('saveButton');
+    const publishButton = document.getElementById('publishButton');
+    const copyButton = document.getElementById('copyButton');
+    const resetButton = document.getElementById('resetButton');
+
+    function readStoredContent() {
+      try {
+        const rawValue = window.localStorage.getItem(STORAGE_KEY);
+        if (!rawValue) return {};
+
+        const parsed = JSON.parse(rawValue);
+        return typeof parsed === 'object' && parsed !== null ? parsed : {};
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function readQueryContent() {
+      const params = new URLSearchParams(window.location.search);
+      const content = {};
+
+      if (params.has('date')) content.dateLabel = params.get('date') || '';
+      if (params.has('dateLabel')) content.dateLabel = params.get('dateLabel') || '';
+      if (params.has('note')) content.noteText = params.get('note') || '';
+      if (params.has('noteText')) content.noteText = params.get('noteText') || '';
+      if (params.has('video')) content.videoUrl = params.get('video') || '';
+      if (params.has('videoUrl')) content.videoUrl = params.get('videoUrl') || '';
+
+      return content;
+    }
+
+    function mergeContent(...sources) {
+      return sources.reduce((content, source) => {
+        Object.entries(source).forEach(([key, value]) => {
+          if (typeof value === 'string') {
+            content[key] = value;
+          }
+        });
+        return content;
+      }, { ...DEFAULT_CONTENT });
+    }
+
+    function getCurrentContent() {
+      return mergeContent(readStoredContent(), readQueryContent());
+    }
+
+    function getRootUrl() {
+      return new URL('../index.html', window.location.href);
+    }
+
+    function buildRouteUrl(content) {
+      const url = getRootUrl();
+      const params = new URLSearchParams();
+
+      if (content.dateLabel) params.set('date', content.dateLabel);
+      if (content.noteText) params.set('note', content.noteText);
+      if (content.videoUrl) params.set('video', content.videoUrl);
+
+      url.search = params.toString();
+      return url;
+    }
+
+    function renderPreview(content) {
+      previewNote.textContent = content.noteText || 'Your note preview will appear here.';
+      routeStatus.textContent = content.videoUrl ? 'Route ready to copy' : 'Route ready, no video link set';
+    }
+
+    function readFormContent() {
+      return {
+        dateLabel: dateInput.value.trim(),
+        noteText: noteInput.value.trim(),
+        videoUrl: videoInput.value.trim()
+      };
+    }
+
+    function saveContent(content) {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(content));
+    }
+
+    function applyContent(content) {
+      dateInput.value = content.dateLabel || '';
+      noteInput.value = content.noteText || '';
+      videoInput.value = content.videoUrl || '';
+      renderPreview(content);
+    }
+
+    function setStatus(message) {
+      statusText.textContent = message;
+    }
+
+    async function copyRoute() {
+      const routeUrl = buildRouteUrl(readFormContent()).toString();
+
+      try {
+        await navigator.clipboard.writeText(routeUrl);
+        setStatus('Share link copied to clipboard.');
+      } catch (error) {
+        setStatus('Could not copy automatically. The route is shown in the preview link.');
+      }
+    }
+
+    function publish() {
+      const content = readFormContent();
+      saveContent(content);
+      renderPreview(content);
+      setStatus('Saved. Open the main page to see the updated note.');
+    }
+
+    function resetDefaults() {
+      applyContent({ ...DEFAULT_CONTENT });
+      setStatus('Defaults restored in the form only.');
+    }
+
+    const initialContent = getCurrentContent();
+    applyContent(initialContent);
+
+    saveButton.addEventListener('click', publish);
+    publishButton.addEventListener('click', publish);
+    copyButton.addEventListener('click', copyRoute);
+    resetButton.addEventListener('click', resetDefaults);
+
+    noteInput.addEventListener('input', () => renderPreview(readFormContent()));
+    videoInput.addEventListener('input', () => renderPreview(readFormContent()));
+    dateInput.addEventListener('input', () => renderPreview(readFormContent()));
+  </script>
+</body>
+</html>
